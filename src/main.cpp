@@ -9,7 +9,12 @@ int main() {
         return 1;
     }
 
-    std::string url = std::string("file://") + cwd + "/ui/index.html";
+    std::string current_dir(cwd);
+    if (current_dir.length() >= 6 && current_dir.substr(current_dir.length() - 6) == "/build") {
+        current_dir = current_dir.substr(0, current_dir.length() - 6);
+    }
+
+    std::string url = std::string("file://") + current_dir + "/ui/index.html";
 
     webview::webview w(false, nullptr);
     w.set_title("Minimal Webview App");
@@ -17,11 +22,11 @@ int main() {
 
     w.bind("go_backend_xu_ly", [&](const std::string &req) -> std::string {
         std::cout << "Backend received: " << req << std::endl;
-        return "Acknowledged";
+        return "{\"status\": \"Acknowledged\"}"; // Trả về chuỗi JSON hợp lệ để JS ở frontend parse được
     });
 
     w.navigate(url);
     w.run();
-    
+
     return 0;
 }

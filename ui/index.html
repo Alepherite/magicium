@@ -153,6 +153,7 @@
             position: relative;
             user-select: none;
             display: inline-block;
+            width: 180px; /* Fixed uniform width for trigger and options */
         }
 
         .custom-select-trigger {
@@ -167,6 +168,8 @@
             color: var(--text-color);
             font-size: 14px;
             cursor: pointer;
+            width: 100%; /* Spans full wrapper width */
+            box-sizing: border-box;
             transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
                         background-color 0.3s ease, 
                         color 0.3s ease;
@@ -191,75 +194,104 @@
             top: calc(100% + 6px);
             left: 0;
             right: 0;
-            min-width: 160px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
             z-index: 100;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
-                        transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
-                        visibility 0.2s,
-                        background-color 0.3s ease,
-                        border-color 0.3s ease;
-            overflow: hidden;
+            background: transparent !important; /* Transparent container so options act as separate cards */
+            border: none !important;
+            box-shadow: none !important;
+            pointer-events: none;
+            overflow: visible; /* Allows visual freedom for bouncy animations */
         }
 
         .custom-select-wrapper.open .custom-options {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* [NEW] Magnetic tracking hover element - acts as a smooth overlay border */
+        .custom-hover-bg {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 0px;
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            transform-origin: center center;
+            box-sizing: border-box;
+            /* Smooth transitions for absolute tracking */
+            transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+                        height 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+                        opacity 0.15s ease;
         }
 
         .custom-option {
+            position: relative;
             padding: 10px 16px;
             font-size: 14px;
             color: var(--text-color);
             cursor: pointer;
-            transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
-                        color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--card-bg); /* Individual rounded card look */
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            opacity: 0;
+            z-index: 2;
+            /* Elegant playing card deck entry rotation and slide effect */
+            transform: translateY(-15px) rotate(-4deg) scale(0.92);
+            transform-origin: top center;
+            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                        background-color 0.15s ease, 
+                        color 0.15s ease;
+            /* Staggered transition delay using dynamic CSS variable */
+            transition-delay: calc(var(--i) * 0.04s); 
         }
 
-        .custom-option:hover {
-            background-color: var(--accent-color);
-            color: #ffffff;
+        .custom-select-wrapper.open .custom-option {
+            opacity: 1;
+            transform: translateY(0) rotate(0deg) scale(1);
         }
 
+        /* [MODIFIED] No background-color on hover, color turns highly readable when matching pointer */
+        .custom-option.hovered {
+            color: var(--accent-color);
+            transform: scale(1.02);
+            transition-delay: 0s !important; /* Instant response to mouse adjustments */
+        }
+
+        /* [MODIFIED] Selected state turns into a clean, highlighted style border */
         .custom-option.selected {
-            background-color: var(--accent-color);
-            color: #ffffff;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 1px var(--accent-color);
             font-weight: 600;
         }
 
-        /* Specific overrides matching your dark contrast designs */
+        /* Theme overrides targeting individual cards (.custom-option) */
         body.dark .custom-select-trigger {
             background: #e0e0e0;
             color: #1a1a1a;
             border-color: #555;
         }
-        body.dark .custom-options {
-            background: #e0e0e0;
-            border-color: #555;
-        }
         body.dark .custom-option {
+            background: #e0e0e0;
             color: #1a1a1a;
+            border-color: #ccc;
         }
-        body.dark .custom-option:hover {
-            background-color: #a5b4fc;
-            color: #1a1a1a;
+        body.dark .custom-option.hovered {
+            color: #4f46e5;
         }
         body.dark .custom-option.selected {
-            background-color: #6366f1;
-            color: #ffffff;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 1px #6366f1;
+            color: #1a1a1a;
         }
 
         body.cyberpunk .custom-select-trigger,
-        body.cyberpunk .custom-options,
+        body.cyberpunk .custom-option,
         body.matrix .custom-select-trigger,
-        body.matrix .custom-options {
+        body.matrix .custom-option {
             background: #2a2a2a;
             border-color: var(--border-color);
         }
@@ -405,12 +437,21 @@
             const optionsContainer = document.createElement('div');
             optionsContainer.className = 'custom-options';
 
+            // [NEW] Add dynamic magnetic hover outline card
+            const hoverBg = document.createElement('div');
+            hoverBg.className = 'custom-hover-bg';
+            optionsContainer.appendChild(hoverBg);
+
             // Populate choices dynamically from original selector
             Array.from(nativeSelect.options).forEach((option, idx) => {
                 const optDiv = document.createElement('div');
                 optDiv.className = 'custom-option';
                 optDiv.textContent = option.text;
                 optDiv.dataset.value = option.value;
+                
+                // Store option index as a CSS custom property to stagger transition delays
+                optDiv.style.setProperty('--i', idx);
+                
                 if (idx === nativeSelect.selectedIndex) {
                     optDiv.classList.add('selected');
                 }
@@ -436,6 +477,50 @@
             wrapper.appendChild(optionsContainer);
             nativeSelect.parentNode.insertBefore(wrapper, nativeSelect);
 
+            // [NEW] Continuous magnetic mouse tracking on the entire options area to avoid polling issues
+            optionsContainer.addEventListener('mousemove', (e) => {
+                if (!wrapper.classList.contains('open')) return;
+                
+                const rect = optionsContainer.getBoundingClientRect();
+                const mouseY = e.clientY - rect.top; // Relative vertical position inside container
+                
+                const options = Array.from(optionsContainer.querySelectorAll('.custom-option'));
+                if (options.length === 0) return;
+
+                let closestOption = null;
+                let minDistance = Infinity;
+
+                // Loop to calculate the closest card element based on midpoints (handles gaps gracefully)
+                options.forEach((opt) => {
+                    const optY = opt.offsetTop;
+                    const optHeight = opt.offsetHeight;
+                    const optMidpoint = optY + optHeight / 2;
+                    const distance = Math.abs(mouseY - optMidpoint);
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestOption = opt;
+                    }
+                });
+
+                if (closestOption) {
+                    // Reset all other hovered items
+                    options.forEach(opt => opt.classList.remove('hovered'));
+                    closestOption.classList.add('hovered');
+
+                    // Position hover border perfectly onto the closest item
+                    hoverBg.style.transform = `translateY(${closestOption.offsetTop}px)`;
+                    hoverBg.style.height = `${closestOption.offsetHeight}px`;
+                    hoverBg.style.opacity = '1';
+                }
+            });
+
+            // [NEW] Clear hover tracking when mouse completely exits the container bounds
+            optionsContainer.addEventListener('mouseleave', () => {
+                optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('hovered'));
+                hoverBg.style.opacity = '0';
+            });
+
             // Handle open/close toggling
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -444,6 +529,10 @@
                     if (w !== wrapper) w.classList.remove('open');
                 });
                 wrapper.classList.toggle('open');
+                
+                // Clear state when toggled
+                optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('hovered'));
+                hoverBg.style.opacity = '0';
             });
 
             // Close dropdown when clicking outside

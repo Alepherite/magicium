@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magicium Converter</title>
     <style>
         :root {
@@ -37,7 +38,6 @@
             --error-text: #e11d48;
         }
 
-        /* [NEW THEMES ADDED BELOW] */
         body.nord {
             --bg-color: #d8dee9;
             --card-bg: #e5e9f0;
@@ -92,69 +92,207 @@
             --status-text: #00ff41;
             --error-text: #ff0000;
         }
-        /* [END OF NEW THEMES] */
+
+        * {
+            box-sizing: border-box;
+        }
 
         body { 
             font-family: 'Inter', system-ui, sans-serif; 
-            display: flex; flex-direction: column; align-items: center; 
-            justify-content: center; height: 100vh; margin: 0; 
-            background: var(--bg-color); color: var(--text-color);
-            transition: all 0.3s ease;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            background: var(--bg-color); 
+            color: var(--text-color);
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
         }
 
-        .controls-top { margin-bottom: 20px; }
+        .controls-top { 
+            margin-bottom: 20px; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
         #drop-zone { 
-            width: 320px; height: 220px; border: 2px dashed var(--border-color); 
-            display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 20px; background: var(--card-bg); cursor: pointer; 
-            position: relative; overflow: hidden; border-radius: 16px;
-            transition: transform 0.2s, border-color 0.2s;
+            width: 320px; 
+            height: 220px; 
+            border: 2px dashed var(--border-color); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin-bottom: 20px; 
+            background: var(--card-bg); 
+            cursor: pointer; 
+            position: relative; 
+            overflow: hidden; 
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                        border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                        background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #drop-zone:hover { transform: scale(1.02); border-color: var(--accent-color); }
         #drop-zone.dragover { border-color: var(--accent-color); background: var(--accent-color)20; }
         #preview { max-width: 90%; max-height: 90%; display: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         
-        .action-area { display: flex; gap: 10px; align-items: center; }
+        .action-area { 
+            display: flex; 
+            gap: 12px; 
+            align-items: center; 
+        }
         
-        select, button {
-            padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-color);
-            background: var(--card-bg); color: var(--text-color); font-size: 14px;
-            cursor: pointer; transition: all 0.2s;
+        /* Keep native elements hidden while we substitute custom smooth dropdowns */
+        #theme, #format { display: none; }
+
+        /* [CUSTOM SMOOTH SELECT STYLING] */
+        .custom-select-wrapper {
+            position: relative;
+            user-select: none;
+            display: inline-block;
         }
 
-        body.dark select {
-            background: #e0e0e0; /* Lighter background for better contrast */
-            color: #1a1a1a;    /* Darker text for better contrast */
+        .custom-select-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                        background-color 0.3s ease, 
+                        color 0.3s ease;
+        }
+
+        .custom-select-trigger:hover {
+            border-color: var(--accent-color);
+        }
+
+        .custom-select-trigger .arrow {
+            font-size: 10px;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0.7;
+        }
+
+        .custom-select-wrapper.open .custom-select-trigger .arrow {
+            transform: rotate(180deg);
+        }
+
+        .custom-options {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            min-width: 160px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                        visibility 0.2s,
+                        background-color 0.3s ease,
+                        border-color 0.3s ease;
+            overflow: hidden;
+        }
+
+        .custom-select-wrapper.open .custom-options {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .custom-option {
+            padding: 10px 16px;
+            font-size: 14px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+                        color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .custom-option:hover {
+            background-color: var(--accent-color);
+            color: #ffffff;
+        }
+
+        .custom-option.selected {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Specific overrides matching your dark contrast designs */
+        body.dark .custom-select-trigger {
+            background: #e0e0e0;
+            color: #1a1a1a;
             border-color: #555;
         }
+        body.dark .custom-options {
+            background: #e0e0e0;
+            border-color: #555;
+        }
+        body.dark .custom-option {
+            color: #1a1a1a;
+        }
+        body.dark .custom-option:hover {
+            background-color: #a5b4fc;
+            color: #1a1a1a;
+        }
+        body.dark .custom-option.selected {
+            background-color: #6366f1;
+            color: #ffffff;
+        }
 
-        /* [ADDED DROPDOWN STYLING FOR EXTREME DARK THEMES] */
-        body.cyberpunk select,
-        body.matrix select {
+        body.cyberpunk .custom-select-trigger,
+        body.cyberpunk .custom-options,
+        body.matrix .custom-select-trigger,
+        body.matrix .custom-options {
             background: #2a2a2a;
-            color: #00ffcc;
             border-color: var(--border-color);
         }
-        body.matrix select {
-            color: #00ff41;
+
+        body.cyberpunk .custom-select-trigger { color: #00ffcc; }
+        body.matrix .custom-select-trigger { color: #00ff41; }
+        /* [END CUSTOM DROPDOWN STYLING] */
+
+        button { 
+            padding: 10px 18px; border-radius: 8px; border: none;
+            background: var(--accent-color); color: white; font-size: 14px;
+            font-weight: 600; cursor: pointer; 
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.1s ease,
+                        box-shadow 0.2s ease; 
         }
+        button:hover { background: var(--accent-hover); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        button:active { transform: scale(0.98); }
 
-        button { background: var(--accent-color); color: white; font-weight: 600; border: none; }
-        button:hover { background: var(--accent-hover); }
-
-        #status { margin-top: 16px; font-weight: 500; color: var(--status-text); }
+        #status { margin-top: 16px; font-weight: 500; color: var(--status-text); transition: color 0.2s ease; text-align: center; }
         #status.error { color: var(--error-text); }
     </style>
 </head>
 <body>
     <div class="controls-top">
-        <label for="theme">Theme: </label>
+        <label for="theme" style="font-size: 14px; font-weight: 600;">Theme: </label>
         <select id="theme" onchange="document.body.className = this.value">
             <option value="">Default</option>
             <option value="dark">Dark Mode</option>
             <option value="sunset">Sunset</option>
-            <!-- [NEW THEME OPTIONS ADDED BELOW] -->
             <option value="nord">Nord (Frost)</option>
             <option value="cyberpunk">Cyberpunk</option>
             <option value="forest">Forest</option>
@@ -164,7 +302,11 @@
     </div>
 
     <div id="drop-zone">
-        <div id="drop-text">Drag or click to add image</div>
+        <div id="drop-text" style="text-align: center; padding: 20px;">
+            <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+            <strong>Drag or click to add image</strong>
+            <div style="font-size: 12px; opacity: 0.6; margin-top: 6px;">Supports PNG, JPEG, WEBP, BMP</div>
+        </div>
         <img id="preview" />
     </div>
 
@@ -184,6 +326,7 @@
         const dropZone = document.getElementById('drop-zone');
         const preview = document.getElementById('preview');
         const status = document.getElementById('status');
+
         let currentFileBase64 = null;
         let currentSourcePath = null;
 
@@ -224,13 +367,94 @@
             input.click();
         };
 
-        dropZone.onclick = window.requestImageSelection;
+        dropZone.onclick = () => {
+            window.requestImageSelection();
+        };
+
         document.getElementById('convert-btn').onclick = () => {
             if (!currentFileBase64) return setStatus('Select an image first.', true);
             const format = document.getElementById('format').value;
             const payload = `${format},${currentFileBase64},${encodeURIComponent(currentSourcePath || '')}`;
             window.webkit?.messageHandlers?.save_converted_image?.postMessage(payload) ?? setStatus('Bridge unavailable.', true);
         };
+
+        // [HELPER SCRIPT TO CONVERT NATIVE SELECT TO BEAUTIFUL CUSTOM ANIMATED SELECT]
+        function initializeCustomSelect(selectId) {
+            const nativeSelect = document.getElementById(selectId);
+            if (!nativeSelect) return;
+
+            // Create custom select layout
+            const wrapper = document.createElement('div');
+            wrapper.className = 'custom-select-wrapper';
+            wrapper.id = `custom-wrapper-${selectId}`;
+
+            const trigger = document.createElement('div');
+            trigger.className = 'custom-select-trigger';
+            
+            const triggerText = document.createElement('span');
+            triggerText.textContent = nativeSelect.options[nativeSelect.selectedIndex]?.text || '';
+            
+            const arrow = document.createElement('span');
+            arrow.className = 'arrow';
+            arrow.textContent = '▼';
+
+            trigger.appendChild(triggerText);
+            trigger.appendChild(arrow);
+            wrapper.appendChild(trigger);
+
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'custom-options';
+
+            // Populate choices dynamically from original selector
+            Array.from(nativeSelect.options).forEach((option, idx) => {
+                const optDiv = document.createElement('div');
+                optDiv.className = 'custom-option';
+                optDiv.textContent = option.text;
+                optDiv.dataset.value = option.value;
+                if (idx === nativeSelect.selectedIndex) {
+                    optDiv.classList.add('selected');
+                }
+
+                optDiv.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    // Clear old selection and set new
+                    optionsContainer.querySelectorAll('.custom-option').forEach(el => el.classList.remove('selected'));
+                    optDiv.classList.add('selected');
+                    triggerText.textContent = option.text;
+                    
+                    // Sync value back to native select
+                    nativeSelect.value = option.value;
+                    nativeSelect.dispatchEvent(new Event('change'));
+                    
+                    wrapper.classList.remove('open');
+                });
+
+                optionsContainer.appendChild(optDiv);
+            });
+
+            wrapper.appendChild(optionsContainer);
+            nativeSelect.parentNode.insertBefore(wrapper, nativeSelect);
+
+            // Handle open/close toggling
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Close any other open dropdowns first
+                document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+                    if (w !== wrapper) w.classList.remove('open');
+                });
+                wrapper.classList.toggle('open');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', () => {
+                wrapper.classList.remove('open');
+            });
+        }
+
+        // Run dropdown transformations right away
+        initializeCustomSelect('theme');
+        initializeCustomSelect('format');
     </script>
 </body>
 </html>

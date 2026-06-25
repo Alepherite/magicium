@@ -37,6 +37,63 @@
             --error-text: #e11d48;
         }
 
+        /* [NEW THEMES ADDED BELOW] */
+        body.nord {
+            --bg-color: #d8dee9;
+            --card-bg: #e5e9f0;
+            --text-color: #2e3440;
+            --accent-color: #88c0d0;
+            --accent-hover: #81a1c1;
+            --border-color: #ccd0d9;
+            --status-text: #a3be8c;
+            --error-text: #bf616a;
+        }
+
+        body.cyberpunk {
+            --bg-color: #0d0e15;
+            --card-bg: #1a1c29;
+            --text-color: #00ffcc;
+            --accent-color: #ff007f;
+            --accent-hover: #d40066;
+            --border-color: #ff007f88;
+            --status-text: #39ff14;
+            --error-text: #ff3333;
+        }
+
+        body.forest {
+            --bg-color: #f1f3f0;
+            --card-bg: #ffffff;
+            --text-color: #2d3a2e;
+            --accent-color: #1b4d3e;
+            --accent-hover: #143d31;
+            --border-color: #c2d5c6;
+            --status-text: #2e6f40;
+            --error-text: #a83232;
+        }
+
+        body.sakura {
+            --bg-color: #fff0f3;
+            --card-bg: #ffffff;
+            --text-color: #5c3d46;
+            --accent-color: #ffb3c1;
+            --accent-hover: #ff8fa3;
+            --border-color: #ffe5ec;
+            --status-text: #c9184a;
+            --error-text: #ff4d6d;
+        }
+
+        body.matrix {
+            --bg-color: #030704;
+            --card-bg: #0d120f;
+            --text-color: #00ff41;
+            --accent-color: #008f11;
+            --accent-hover: #00ff41;
+            --border-color: #00ff4144;
+            --status-text: #00ff41;
+            --error-text: #ff0000;
+        }
+        /* [END OF NEW THEMES] */
+
         body { 
             font-family: 'Inter', system-ui, sans-serif; 
             display: flex; flex-direction: column; align-items: center; 
@@ -71,6 +128,18 @@
             color: #1a1a1a;    /* Darker text for better contrast */
             border-color: #555;
         }
+
+        /* [ADDED DROPDOWN STYLING FOR EXTREME DARK THEMES] */
+        body.cyberpunk select,
+        body.matrix select {
+            background: #2a2a2a;
+            color: #00ffcc;
+            border-color: var(--border-color);
+        }
+        body.matrix select {
+            color: #00ff41;
+        }
+
         button { background: var(--accent-color); color: white; font-weight: 600; border: none; }
         button:hover { background: var(--accent-hover); }
 
@@ -85,6 +154,12 @@
             <option value="">Default</option>
             <option value="dark">Dark Mode</option>
             <option value="sunset">Sunset</option>
+            <!-- [NEW THEME OPTIONS ADDED BELOW] -->
+            <option value="nord">Nord (Frost)</option>
+            <option value="cyberpunk">Cyberpunk</option>
+            <option value="forest">Forest</option>
+            <option value="sakura">Sakura</option>
+            <option value="matrix">Matrix</option>
         </select>
     </div>
 

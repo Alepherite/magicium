@@ -31,23 +31,7 @@ std::string base64_encode(const std::vector<unsigned char>& data) {
     return result;
 }
 
-std::vector<unsigned char> base64_decode(const std::string& in) {
-    std::vector<unsigned char> out;
-    std::vector<int> T(256, -1);
-    for (int i = 0; i < 64; i++) T["ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[i]] = i;
-    int val = 0, valb = -8;
-    for (unsigned char c : in) {
-        if (c == '=') break;
-        if (T[c] == -1) continue;
-        val = (val << 6) + T[c];
-        valb += 6;
-        if (valb >= 0) {
-            out.push_back(static_cast<unsigned char>((val >> valb) & 0xFF));
-            valb -= 8;
-        }
-    }
-    return out;
-}
+/* MODIFIED: Đã gỡ bỏ hàm base64_decode vì không cần giải mã dữ liệu thô từ giao diện nữa */
 
 std::string make_data_url_from_file(const std::string& path) {
     std::ifstream input(path, std::ios::binary);
@@ -126,33 +110,50 @@ void run_javascript(WebKitWebView* web_view, const std::string& script) {
     webkit_web_view_evaluate_javascript(web_view, script.c_str(), static_cast<gssize>(script.size()), nullptr, nullptr, nullptr, nullptr, nullptr);
 }
 
+/* MODIFIED: Cơ cấu lại hàm để nhận đường dẫn vật lý và thực thi CLI chuyển đổi qua ImageMagick */
 std::string save_image_from_payload(const std::string& req) {
     size_t first = req.find(',');
-    size_t second = req.find(',', first + 1);
-    if (first == std::string::npos || second == std::string::npos) {
+    if (first == std::string::npos) {
         return "{\"status\": \"error\"}";
     }
     std::string format = req.substr(0, first);
-    std::string base64_data = req.substr(first + 1, second - first - 1);
-    std::string source_path = req.substr(second + 1);
+    std::string source_path = req.substr(first + 1);
+
     format.erase(std::remove(format.begin(), format.end(), '"'), format.end());
     format.erase(std::remove(format.begin(), format.end(), '['), format.end());
     format.erase(std::remove(format.begin(), format.end(), ']'), format.end());
-    std::vector<unsigned char> data = base64_decode(base64_data);
+
     gchar* unescaped_source_path = g_uri_unescape_string(source_path.c_str(), nullptr);
     if (unescaped_source_path != nullptr) {
         source_path = unescaped_source_path;
         g_free(unescaped_source_path);
     }
+
     std::string output_path = make_output_path(source_path, format);
-    std::ofstream fout(output_path, std::ios::binary);
-    if (fout) {
-        fout.write(reinterpret_cast<const char*>(data.data()), data.size());
-        fout.close();
+
+    // Dựng câu lệnh gọi CLI ImageMagick an toàn bằng cách quote toàn bộ đường dẫn
+    gchar* quoted_input = g_shell_quote(source_path.c_str());
+    gchar* quoted_output = g_shell_quote(output_path.c_str());
+    gchar* magick_cmd = g_strdup_printf("magick %s %s", quoted_input, quoted_output);
+
+    GError* error = nullptr;
+    // Chạy bất đồng bộ tiến trình độc lập của hệ thống để tận dụng tối đa đa nhân mà không làm đơ giao diện
+    gboolean success = g_spawn_command_line_async(magick_cmd, &error);
+
+    g_free(quoted_input);
+    g_free(quoted_output);
+    g_free(magick_cmd);
+
+    if (success) {
         send_notification(output_path);
         return "{\"status\": \"success\", \"file\": \"" + output_path + "\"}";
+    } else {
+        if (error != nullptr) {
+            std::cerr << "Magick Error: " << error->message << std::endl;
+            g_error_free(error);
+        }
+        return "{\"status\": \"error\"}";
     }
-    return "{\"status\": \"error\"}";
 }
 
 static void on_save_script_message(WebKitUserContentManager* manager, WebKitJavascriptResult* result, gpointer user_data) {
@@ -261,7 +262,6 @@ static std::string get_saved_theme(AppContext* app_context) {
     return theme;
 }
 
-/* MODIFIED: Tối ưu lại Script tiêm vào để đảm bảo nhận giá trị cấu hình chính xác và triệt tiêu flashbang hoàn toàn */
 static void inject_theme_script(AppContext* app_context) {
     std::string theme = get_saved_theme(app_context);
     

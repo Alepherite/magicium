@@ -353,32 +353,27 @@
         const preview = document.getElementById('preview');
         const status = document.getElementById('status');
 
-        let currentFileBase64 = null;
+        /* MODIFIED: Xóa biến lưu Base64 cũ, chỉ quản lý đường dẫn file vật lý */
         let currentSourcePath = null;
 
-        /* MODIFIED: Hàm áp dụng theme chặt chẽ hơn, không bị preference đè */
         window.applyAppTheme = (theme) => {
             const nativeSelect = document.getElementById('theme');
             if (!nativeSelect) return;
 
             let targetTheme = theme;
 
-            // Nếu file config trống/chưa tạo, tự động check OS prefer dark hay light để ăn theo
             if (!targetTheme || targetTheme === "") {
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                     targetTheme = 'dark';
                 } else {
                     targetTheme = 'light';
                 }
-                // Gửi ngược xuống C++ để lưu lại cấu hình cố định luôn, không để OS làm phiền nữa
                 window.webkit?.messageHandlers?.update_config_theme?.postMessage(targetTheme);
             }
 
-            // Áp dụng class trực tiếp vào body
             nativeSelect.value = targetTheme;
             document.body.className = targetTheme;
 
-            // Ép đồng bộ hiển thị của UI Custom Dropdown
             const wrapper = document.getElementById('custom-wrapper-theme');
             if (wrapper) {
                 const triggerText = wrapper.querySelector('.custom-select-trigger span');
@@ -398,7 +393,7 @@
         }
 
         window.setImageFromDataUrl = (dataUrl, sourcePath) => {
-            currentFileBase64 = dataUrl.split(',')[1];
+            /* MODIFIED: Không bóc tách và giữ base64 dữ liệu ảnh nữa */
             currentSourcePath = sourcePath || null;
             preview.src = dataUrl;
             preview.style.display = 'block';
@@ -416,17 +411,6 @@
                 window.webkit.messageHandlers.select_image.postMessage('');
                 return;
             }
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => window.setImageFromDataUrl(ev.target.result);
-                reader.readAsDataURL(file);
-            };
-            input.click();
         };
 
         dropZone.onclick = () => {
@@ -434,9 +418,10 @@
         };
 
         document.getElementById('convert-btn').onclick = () => {
-            if (!currentFileBase64) return setStatus('Select an image first.', true);
+            /* MODIFIED: Check theo đường dẫn vật lý, payload tinh gọn chỉ gửi format và path */
+            if (!currentSourcePath) return setStatus('Select an image first.', true);
             const format = document.getElementById('format').value;
-            const payload = `${format},${currentFileBase64},${encodeURIComponent(currentSourcePath || '')}`;
+            const payload = `${format},${encodeURIComponent(currentSourcePath)}`;
             window.webkit?.messageHandlers?.save_converted_image?.postMessage(payload) ?? setStatus('Bridge unavailable.', true);
         };
 
@@ -490,7 +475,6 @@
                     nativeSelect.value = option.value;
                     nativeSelect.dispatchEvent(new Event('change'));
                     
-                    /* MODIFIED: Lưu chuẩn xác giá trị value được chọn */
                     if (selectId === 'theme') {
                         window.webkit?.messageHandlers?.update_config_theme?.postMessage(option.value);
                     }

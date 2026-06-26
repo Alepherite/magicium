@@ -1,0 +1,73 @@
+===============================================================================
+                                 M A G I C I U M
+===============================================================================
+A hybrid C++ & WebKitGTK image utility. Native performance, minimalist overhead.
+
+-------------------------------------------------------------------------------
+1. QUICK START
+-------------------------------------------------------------------------------
+Make sure you install the [Prerequisites] first.
+
+[Option A: Automated Installation (Recommended)]
+  git clone https://github.com/Alepherite/magicium.git
+  cd magicium
+  chmod +x install.sh
+  ./install.sh
+
+[Option B: Manual Compilation]
+  git clone https://github.com/Alepherite/magicium.git
+  cd magicium
+  make
+  build/magicium
+
+[Uninstall]
+  - Option A (Global): Run 'magicium-uninstall' from anywhere.
+  - Option B (Source): Run './uninstall.sh' from inside the repository folder.
+
+-------------------------------------------------------------------------------
+2. PREREQUISITES
+-------------------------------------------------------------------------------
+Install development libraries based on your Linux distribution:
+
+[Debian / Ubuntu / Linux Mint]
+  sudo apt install build-essential libgtk-3-dev libwebkit2gtk-4.1-dev \
+                   imagemagick libnotify-bin
+
+[Fedora / RHEL]
+  sudo dnf install gcc-c++ make gtk3-devel webkit2gtk4.1-devel \
+                   ImageMagick libnotify
+
+[Arch Linux / CachyOS / Manjaro]
+  sudo pacman -S base-devel gtk3 webkit2gtk-4.1 imagemagick libnotify
+
+-------------------------------------------------------------------------------
+3. FEATURES
+-------------------------------------------------------------------------------
+* Hybrid Architecture: HTML5/JS/CSS frontend sitting directly on a C++ core.
+* Zero Base64 Overhead: Passes absolute file paths straight to 'magick' binary.
+* Asynchronous Processing: Offloads tasks via 'g_spawn_command_line_async'.
+* Desktop Drag & Drop: Drop files from Thunar, Dolphin, PCManFM-QT, etc.
+* Anti-Flashbang: 8 custom theme presets with a pre-inject loader.
+* Native Notifications: Alerts via 'notify-send' upon compilation completion.
+
+-------------------------------------------------------------------------------
+4. UNDER THE HOOD
+-------------------------------------------------------------------------------
+* JS-to-C++ Bridge: Frontend extracts file paths, sending a minimal metadata 
+  payload to C++. Avoids heavy browser-side canvas encoding.
+* Intelligent Dispatcher: C++ backend resolves naming duplicates and spawns 
+  independent child processes:
+  $ magick "/path/to/input.png" "/path/to/input_converted.webp"
+* Resource Efficiency: Optimal multi-threading with ~0% idle memory footprint.
+
+-------------------------------------------------------------------------------
+5. USER SETTINGS
+-------------------------------------------------------------------------------
+Configuration and active theme presets are persisted under:
+  ~/.config/magicium/config.json
+
+-------------------------------------------------------------------------------
+6. LICENSE
+-------------------------------------------------------------------------------
+Open-source under the terms of the LICENSE agreement. Feel free to fork & hack!
+===============================================================================

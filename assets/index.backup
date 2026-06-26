@@ -222,9 +222,7 @@
             border: none !important;
             box-shadow: none !important;
             pointer-events: none;
-            overflow-y:auto;
-            overflow-x:hidden;
-            max-height:320px;
+            overflow: visible;
         }
 
         .custom-select-wrapper.open .custom-options {
@@ -323,11 +321,7 @@
 
         body.cyberpunk .custom-select-trigger { color: #00ffcc; }
         body.matrix .custom-select-trigger { color: #00ff41; }
-    
-.custom-options::-webkit-scrollbar{width:8px;}
-.custom-options::-webkit-scrollbar-thumb{background:var(--accent-color);border-radius:999px;}
-body.dracula{--bg-color:#282a36;--card-bg:#44475a;--text-color:#f8f8f2;--accent-color:#bd93f9;--accent-hover:#ff79c6;--border-color:#6272a4;--status-text:#50fa7b;--error-text:#ff5555;}
-</style>
+    </style>
 </head>
 <body>
     <div class="controls-top">

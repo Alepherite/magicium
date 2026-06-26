@@ -379,8 +379,13 @@ int main() {
     std::string app_dir = dir_path;
     g_free(dir_path);
 
+    std::string home_env = g_get_home_dir();
+    std::string local_ui_path = home_env + "/.local/share/magicium/ui/index.html";
     std::string url;
-    if (g_file_test((app_dir + "/ui/index.html").c_str(), G_FILE_TEST_EXISTS)) {
+
+    if (g_file_test(local_ui_path.c_str(), G_FILE_TEST_EXISTS)) {
+        url = "file://" + local_ui_path;
+    } else if (g_file_test((app_dir + "/ui/index.html").c_str(), G_FILE_TEST_EXISTS)) {
         url = "file://" + app_dir + "/ui/index.html";
     } else {
         url = "file://" + app_dir + "/../ui/index.html";

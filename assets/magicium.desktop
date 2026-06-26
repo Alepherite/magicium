@@ -3,6 +3,6 @@ Type=Application
 Name=Magicium Converter
 Comment=Convert image formats on the fly using ImageMagick
 Exec=magicium
-Icon=image-converter
+Icon=magicium-converter
 Terminal=false
 Categories=Graphics;Utility;

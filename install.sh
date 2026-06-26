@@ -48,6 +48,10 @@ else
     echo "Warning: assets/icon.png not found. Skipping icon installation."
 fi
 
+# Install global uninstaller
+cp uninstall.sh "$LOCAL_BIN/magicium-uninstall"
+chmod +x "$LOCAL_BIN/magicium-uninstall"
+
 echo "Core installation completed successfully."
 echo "========================================="
 
@@ -76,4 +80,7 @@ while true; do
 done
 
 echo "========================================="
-echo "Installation finished! You can now run 'magicium' from your terminal or launcher."
+echo "Installation finished!"
+echo
+echo "Run 'magicium' to launch the application."
+echo "Run 'magicium-uninstall' anytime to completely remove it."

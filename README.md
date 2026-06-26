@@ -2,7 +2,7 @@
 
 Magicium is natively tailored for Linux desktop environments. Make sure you install the [Prerequisites](#prerequisites) first to ensure a smooth compilation.
 
-### Option A: Automated Installation (Recommended)
+**Option A: Automated Installation (Recommended)**
 
 Run the automated assistant to compile the source code and generate a desktop entry shortcut in your system launcher:
 
@@ -13,7 +13,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-### Option B: Manual Compilation
+**Option B: Manual Compilation**
 
 If you prefer building and launching the binary manually from your terminal:
 

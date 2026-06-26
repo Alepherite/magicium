@@ -23,10 +23,23 @@ cd magicium
 make
 build/magicium
 ```
+### Uninstall
 
-### Uninstall 
+If you installed Magicium using the automated installer, there are two ways to remove it.
 
-If you installed Magicium using the automated installer, you can completely remove it by running:
+**Option A: Global Uninstaller (Recommended)**
+
+Run the built-in uninstaller from anywhere in your terminal:
+
+```bash
+magicium-uninstall
+```
+
+This removes the installed application, desktop entry, icons, and other files created by the installer. Your cloned GitHub repository, if it still exists, is **not** removed.
+
+**Option B: From the Source Directory**
+
+If you still have the cloned repository, you can also run:
 
 ```bash
 cd magicium
@@ -34,7 +47,7 @@ chmod +x uninstall.sh
 ./uninstall.sh
 ```
 
-This removes the installed application, desktop entry, and related files created by the installer.
+In addition to removing the installed application, this method can optionally delete the cloned GitHub repository itself after the uninstallation is complete.
 
 ---
 

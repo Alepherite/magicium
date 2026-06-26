@@ -20,8 +20,6 @@ struct AppContext {
     std::string config_file;
 };
 
-// ... Các hàm base64, make_data_url_from_file, make_output_path giữ nguyên ...
-
 std::string base64_encode(const std::vector<unsigned char>& data) {
     std::string result;
     if (data.empty()) return result;
@@ -219,7 +217,6 @@ static void on_select_image_script_message(WebKitUserContentManager* manager, We
     }
 }
 
-/* ADDED: Hàm xử lý lưu theme từ UI truyền xuống config file */
 static void on_save_theme_script_message(WebKitUserContentManager* manager, WebKitJavascriptResult* result, gpointer user_data) {
     (void)manager;
     AppContext* app_context = static_cast<AppContext*>(user_data);
@@ -230,10 +227,9 @@ static void on_save_theme_script_message(WebKitUserContentManager* manager, WebK
     if (value != nullptr) {
         theme_str = jsc_value_to_string(value);
     }
-    std::string theme = theme_str ? theme_str : "default";
+    std::string theme = theme_str ? theme_str : "light";
     g_free(theme_str);
 
-    // Ghi đè file config.json mới
     std::ofstream fout(app_context->config_file);
     if (fout) {
         fout << "{\n  \"theme\": \"" << theme << "\"\n}";
@@ -241,16 +237,14 @@ static void on_save_theme_script_message(WebKitUserContentManager* manager, WebK
     }
 }
 
-/* MODIFIED: Hàm đọc theme từ config và gửi vào UI sau khi load xong */
-static void apply_saved_theme(AppContext* app_context) {
-    std::string theme = ""; // Mặc định trống để UI tự ăn theo OS nếu chưa có config
+static std::string get_saved_theme(AppContext* app_context) {
+    std::string theme = "";
     
     std::ifstream fin(app_context->config_file);
     if (fin) {
         std::string line;
         while (std::getline(fin, line)) {
             if (line.find("\"theme\"") != std::string::npos) {
-                // Parse thô sơ lấy giá trị trong dấu ngoặc kép cuối cùng
                 size_t first_quote = line.find(':', line.find("\"theme\""));
                 if (first_quote != std::string::npos) {
                     size_t start = line.find('\"', first_quote);
@@ -264,23 +258,69 @@ static void apply_saved_theme(AppContext* app_context) {
         }
         fin.close();
     }
+    return theme;
+}
 
-    // Gửi theme sang cho Javascript xử lý
-    gchar* script = g_strdup_printf("if (window.applyAppTheme) { window.applyAppTheme('%s'); }", theme.c_str());
-    run_javascript(app_context->web_view, script);
-    g_free(script);
+/* MODIFIED: Tối ưu lại Script tiêm vào để đảm bảo nhận giá trị cấu hình chính xác và triệt tiêu flashbang hoàn toàn */
+static void inject_theme_script(AppContext* app_context) {
+    std::string theme = get_saved_theme(app_context);
+    
+    std::string js_code = 
+        "(function() {\n"
+        "    let targetTheme = '" + theme + "';\n"
+        "    if (!targetTheme || targetTheme === '') {\n"
+        "        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {\n"
+        "            targetTheme = 'dark';\n"
+        "        } else {\n"
+        "            targetTheme = 'light';\n"
+        "        }\n"
+        "    }\n"
+        "    // 1. Áp dụng ngay lập tức cho document element để triệt tiêu flashbang\n"
+        "    document.documentElement.className = targetTheme;\n"
+        "    \n"
+        "    // Đợi DOM dựng xong để gắn cả vào body cho đồng bộ giao diện của bạn\n"
+        "    document.addEventListener('DOMContentLoaded', () => {\n"
+        "        document.body.className = targetTheme;\n"
+        "        if (window.applyAppTheme) { window.applyAppTheme(targetTheme); }\n"
+        "    });\n"
+        "    \n"
+        "    // 2. Lắng nghe thời điểm UI định nghĩa hàm applyAppTheme để đồng bộ state lựa chọn (nếu có combo-box)\n"
+        "    let applied = false;\n"
+        "    let realFunc = undefined;\n"
+        "    Object.defineProperty(window, 'applyAppTheme', {\n"
+        "        configurable: true,\n"
+        "        enumerable: true,\n"
+        "        get: function() { return realFunc; },\n"
+        "        set: function(val) {\n"
+        "            realFunc = val;\n"
+        "            if (typeof realFunc === 'function' && !applied) {\n"
+        "                applied = true;\n"
+        "                realFunc(targetTheme);\n"
+        "            }\n"
+        "        }\n"
+        "    });\n"
+        "})();";
+
+    WebKitUserContentManager* user_content_manager = webkit_web_view_get_user_content_manager(app_context->web_view);
+    WebKitUserScript* user_script = webkit_user_script_new(
+        js_code.c_str(),
+        WEBKIT_USER_CONTENT_INJECT_ALL_FRAMES, 
+        WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START, 
+        nullptr,
+        nullptr
+    );
+    webkit_user_content_manager_add_script(user_content_manager, user_script);
+    webkit_user_script_unref(user_script);
 }
 
 static void on_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data) {
     AppContext* app_context = static_cast<AppContext*>(user_data);
     if (load_event == WEBKIT_LOAD_FINISHED) {
         app_context->page_loaded = true;
-        apply_saved_theme(app_context);
     }
     (void)web_view;
 }
 
-// ... Các phần còn lại của main() giữ nguyên không thay đổi ...
 static gboolean on_drag_motion(GtkWidget* widget, GdkDragContext* context, gint x, gint y, guint time, gpointer user_data) {
     (void)x; (void)y; (void)user_data;
     gdk_drag_status(context, GDK_ACTION_COPY, time);
@@ -346,12 +386,10 @@ int main() {
         url = "file://" + app_dir + "/../ui/index.html";
     }
 
-    /* ADDED: Khởi tạo đường dẫn config ~/.config/magicium/config.json */
     AppContext app_context;
     app_context.config_dir = std::string(g_get_user_config_dir()) + "/magicium";
     app_context.config_file = app_context.config_dir + "/config.json";
 
-    // Tạo thư mục config nếu chưa tồn tại
     g_mkdir_with_parents(app_context.config_dir.c_str(), 0755);
 
     GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -367,7 +405,6 @@ int main() {
     WebKitUserContentManager* user_content_manager = webkit_web_view_get_user_content_manager(web_view);
     webkit_user_content_manager_register_script_message_handler(user_content_manager, "save_converted_image");
     webkit_user_content_manager_register_script_message_handler(user_content_manager, "select_image");
-    /* ADDED: Handler mới nhận lệnh lưu theme từ UI */
     webkit_user_content_manager_register_script_message_handler(user_content_manager, "update_config_theme");
 
     g_signal_connect(user_content_manager, "script-message-received::save_converted_image", G_CALLBACK(on_save_script_message), &app_context);
@@ -375,6 +412,8 @@ int main() {
     g_signal_connect(user_content_manager, "script-message-received::update_config_theme", G_CALLBACK(on_save_theme_script_message), &app_context);
 
     g_signal_connect(web_view, "load-changed", G_CALLBACK(on_load_changed), &app_context);
+
+    inject_theme_script(&app_context);
 
     gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(web_view));
 

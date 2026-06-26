@@ -15,8 +15,8 @@ echo "Compiling the project..."
 make
 
 # 2. Check if build succeeded
-if [ ! -f "build/my_app" ]; then
-    echo "Error: Build failed. 'build/my_app' not found."
+if [ ! -f "build/magicium" ]; then
+    echo "Error: Build failed. 'build/magicium' not found."
     exit 1
 fi
 
@@ -27,7 +27,7 @@ mkdir -p "$APP_DIR"
 
 # 4. Copy binary and UI assets to standard user paths
 echo "Installing binaries and UI templates..."
-cp build/my_app "$LOCAL_BIN/magicium"
+cp build/magicium "$LOCAL_BIN/magicium"
 chmod +x "$LOCAL_BIN/magicium"
 
 # Copy UI directory

@@ -5,7 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magicium Converter</title>
     <style>
+        /* Mặc định :root sẽ đóng vai trò là theme Light */
         :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --accent-color: #6366f1;
+            --accent-hover: #4f46e5;
+            --border-color: #e5e7eb;
+            --status-text: #2c7a2c;
+            --error-text: #b00020;
+        }
+
+        /* Thêm class cụ thể cho light để đồng bộ */
+        body.light {
             --bg-color: #f0f2f5;
             --card-bg: #ffffff;
             --text-color: #333;
@@ -145,7 +158,6 @@
             align-items: center; 
         }
         
-        /* Keep native elements hidden while we substitute custom smooth dropdowns */
         #theme, #format { display: none; }
 
         /* [CUSTOM SMOOTH SELECT STYLING] */
@@ -153,7 +165,7 @@
             position: relative;
             user-select: none;
             display: inline-block;
-            width: 180px; /* Fixed uniform width for trigger and options */
+            width: 180px;
         }
 
         .custom-select-trigger {
@@ -168,7 +180,7 @@
             color: var(--text-color);
             font-size: 14px;
             cursor: pointer;
-            width: 100%; /* Spans full wrapper width */
+            width: 100%;
             box-sizing: border-box;
             transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
                         background-color 0.3s ease, 
@@ -195,18 +207,17 @@
             left: 0;
             right: 0;
             z-index: 100;
-            background: transparent !important; /* Transparent container so options act as separate cards */
+            background: transparent !important;
             border: none !important;
             box-shadow: none !important;
             pointer-events: none;
-            overflow: visible; /* Allows visual freedom for bouncy animations */
+            overflow: visible;
         }
 
         .custom-select-wrapper.open .custom-options {
             pointer-events: auto;
         }
 
-        /* [NEW] Magnetic tracking hover element - acts as a smooth overlay border */
         .custom-hover-bg {
             position: absolute;
             left: 0;
@@ -219,7 +230,6 @@
             opacity: 0;
             transform-origin: center center;
             box-sizing: border-box;
-            /* Smooth transitions for absolute tracking */
             transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1),
                         height 0.22s cubic-bezier(0.25, 1, 0.5, 1),
                         opacity 0.15s ease;
@@ -231,21 +241,19 @@
             font-size: 14px;
             color: var(--text-color);
             cursor: pointer;
-            background: var(--card-bg); /* Individual rounded card look */
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             margin-bottom: 6px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
             opacity: 0;
             z-index: 2;
-            /* Elegant playing card deck entry rotation and slide effect */
             transform: translateY(-15px) rotate(-4deg) scale(0.92);
             transform-origin: top center;
             transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
                         transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), 
                         background-color 0.15s ease, 
                         color 0.15s ease;
-            /* Staggered transition delay using dynamic CSS variable */
             transition-delay: calc(var(--i) * 0.04s); 
         }
 
@@ -254,21 +262,25 @@
             transform: translateY(0) rotate(0deg) scale(1);
         }
 
-        /* [MODIFIED] No background-color on hover, color turns highly readable when matching pointer */
         .custom-option.hovered {
             color: var(--accent-color);
             transform: scale(1.02);
-            transition-delay: 0s !important; /* Instant response to mouse adjustments */
+            transition-delay: 0s !important;
         }
 
-        /* [MODIFIED] Selected state turns into a clean, highlighted style border */
         .custom-option.selected {
             border-color: var(--accent-color);
             box-shadow: 0 0 0 1px var(--accent-color);
             font-weight: 600;
         }
 
-        /* Theme overrides targeting individual cards (.custom-option) */
+        /* Thêm style ghi đè class light cho đồng bộ font chữ của custom select */
+        body.light .custom-select-trigger, body.light .custom-option {
+            background: #ffffff;
+            color: #333333;
+            border-color: #e5e7eb;
+        }
+
         body.dark .custom-select-trigger {
             background: #e0e0e0;
             color: #1a1a1a;
@@ -298,31 +310,13 @@
 
         body.cyberpunk .custom-select-trigger { color: #00ffcc; }
         body.matrix .custom-select-trigger { color: #00ff41; }
-        /* [END CUSTOM DROPDOWN STYLING] */
-
-        button { 
-            padding: 10px 18px; border-radius: 8px; border: none;
-            background: var(--accent-color); color: white; font-size: 14px;
-            font-weight: 600; cursor: pointer; 
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
-                        transform 0.1s ease,
-                        box-shadow 0.2s ease; 
-        }
-        button:hover { background: var(--accent-hover); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        button:active { transform: scale(0.98); }
-
-        #status { margin-top: 16px; font-weight: 500; color: var(--status-text); transition: color 0.2s ease; text-align: center; }
-        #status.error { color: var(--error-text); }
     </style>
 </head>
 <body>
     <div class="controls-top">
         <label for="theme" style="font-size: 14px; font-weight: 600;">Theme: </label>
         <select id="theme" onchange="document.body.className = this.value">
-            <option value="">Default</option>
+            <option value="light">Light</option>
             <option value="dark">Dark Mode</option>
             <option value="sunset">Sunset</option>
             <option value="nord">Nord (Frost)</option>
@@ -361,6 +355,42 @@
 
         let currentFileBase64 = null;
         let currentSourcePath = null;
+
+        /* MODIFIED: Hàm áp dụng theme chặt chẽ hơn, không bị preference đè */
+        window.applyAppTheme = (theme) => {
+            const nativeSelect = document.getElementById('theme');
+            if (!nativeSelect) return;
+
+            let targetTheme = theme;
+
+            // Nếu file config trống/chưa tạo, tự động check OS prefer dark hay light để ăn theo
+            if (!targetTheme || targetTheme === "") {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    targetTheme = 'dark';
+                } else {
+                    targetTheme = 'light';
+                }
+                // Gửi ngược xuống C++ để lưu lại cấu hình cố định luôn, không để OS làm phiền nữa
+                window.webkit?.messageHandlers?.update_config_theme?.postMessage(targetTheme);
+            }
+
+            // Áp dụng class trực tiếp vào body
+            nativeSelect.value = targetTheme;
+            document.body.className = targetTheme;
+
+            // Ép đồng bộ hiển thị của UI Custom Dropdown
+            const wrapper = document.getElementById('custom-wrapper-theme');
+            if (wrapper) {
+                const triggerText = wrapper.querySelector('.custom-select-trigger span');
+                const selectedOption = nativeSelect.options[nativeSelect.selectedIndex];
+                if (triggerText && selectedOption) {
+                    triggerText.textContent = selectedOption.text;
+                }
+                wrapper.querySelectorAll('.custom-option').forEach(opt => {
+                    opt.classList.toggle('selected', opt.dataset.value === targetTheme);
+                });
+            }
+        };
 
         function setStatus(message, isError = false) {
             status.textContent = message;
@@ -410,12 +440,10 @@
             window.webkit?.messageHandlers?.save_converted_image?.postMessage(payload) ?? setStatus('Bridge unavailable.', true);
         };
 
-        // [HELPER SCRIPT TO CONVERT NATIVE SELECT TO BEAUTIFUL CUSTOM ANIMATED SELECT]
         function initializeCustomSelect(selectId) {
             const nativeSelect = document.getElementById(selectId);
             if (!nativeSelect) return;
 
-            // Create custom select layout
             const wrapper = document.createElement('div');
             wrapper.className = 'custom-select-wrapper';
             wrapper.id = `custom-wrapper-${selectId}`;
@@ -437,19 +465,15 @@
             const optionsContainer = document.createElement('div');
             optionsContainer.className = 'custom-options';
 
-            // [NEW] Add dynamic magnetic hover outline card
             const hoverBg = document.createElement('div');
             hoverBg.className = 'custom-hover-bg';
             optionsContainer.appendChild(hoverBg);
 
-            // Populate choices dynamically from original selector
             Array.from(nativeSelect.options).forEach((option, idx) => {
                 const optDiv = document.createElement('div');
                 optDiv.className = 'custom-option';
                 optDiv.textContent = option.text;
                 optDiv.dataset.value = option.value;
-                
-                // Store option index as a CSS custom property to stagger transition delays
                 optDiv.style.setProperty('--i', idx);
                 
                 if (idx === nativeSelect.selectedIndex) {
@@ -459,15 +483,18 @@
                 optDiv.addEventListener('click', (e) => {
                     e.stopPropagation();
                     
-                    // Clear old selection and set new
                     optionsContainer.querySelectorAll('.custom-option').forEach(el => el.classList.remove('selected'));
                     optDiv.classList.add('selected');
                     triggerText.textContent = option.text;
                     
-                    // Sync value back to native select
                     nativeSelect.value = option.value;
                     nativeSelect.dispatchEvent(new Event('change'));
                     
+                    /* MODIFIED: Lưu chuẩn xác giá trị value được chọn */
+                    if (selectId === 'theme') {
+                        window.webkit?.messageHandlers?.update_config_theme?.postMessage(option.value);
+                    }
+
                     wrapper.classList.remove('open');
                 });
 
@@ -477,12 +504,11 @@
             wrapper.appendChild(optionsContainer);
             nativeSelect.parentNode.insertBefore(wrapper, nativeSelect);
 
-            // [NEW] Continuous magnetic mouse tracking on the entire options area to avoid polling issues
             optionsContainer.addEventListener('mousemove', (e) => {
                 if (!wrapper.classList.contains('open')) return;
                 
                 const rect = optionsContainer.getBoundingClientRect();
-                const mouseY = e.clientY - rect.top; // Relative vertical position inside container
+                const mouseY = e.clientY - rect.top;
                 
                 const options = Array.from(optionsContainer.querySelectorAll('.custom-option'));
                 if (options.length === 0) return;
@@ -490,7 +516,6 @@
                 let closestOption = null;
                 let minDistance = Infinity;
 
-                // Loop to calculate the closest card element based on midpoints (handles gaps gracefully)
                 options.forEach((opt) => {
                     const optY = opt.offsetTop;
                     const optHeight = opt.offsetHeight;
@@ -504,44 +529,35 @@
                 });
 
                 if (closestOption) {
-                    // Reset all other hovered items
                     options.forEach(opt => opt.classList.remove('hovered'));
                     closestOption.classList.add('hovered');
 
-                    // Position hover border perfectly onto the closest item
                     hoverBg.style.transform = `translateY(${closestOption.offsetTop}px)`;
                     hoverBg.style.height = `${closestOption.offsetHeight}px`;
                     hoverBg.style.opacity = '1';
                 }
             });
 
-            // [NEW] Clear hover tracking when mouse completely exits the container bounds
             optionsContainer.addEventListener('mouseleave', () => {
                 optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('hovered'));
                 hoverBg.style.opacity = '0';
             });
 
-            // Handle open/close toggling
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
-                // Close any other open dropdowns first
                 document.querySelectorAll('.custom-select-wrapper').forEach(w => {
                     if (w !== wrapper) w.classList.remove('open');
                 });
                 wrapper.classList.toggle('open');
-                
-                // Clear state when toggled
                 optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('hovered'));
                 hoverBg.style.opacity = '0';
             });
 
-            // Close dropdown when clicking outside
             document.addEventListener('click', () => {
                 wrapper.classList.remove('open');
             });
         }
 
-        // Run dropdown transformations right away
         initializeCustomSelect('theme');
         initializeCustomSelect('format');
     </script>

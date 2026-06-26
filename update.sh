@@ -8,6 +8,8 @@ else
     echo "uninstall.sh not found. Skipping uninstallation."
 fi
 
+cd ~
+
 # Clone the repository
 git clone https://github.com/Alepherite/magicium.git 
 if [ $? -ne 0 ]; then

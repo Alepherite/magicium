@@ -302,9 +302,25 @@ static void on_drag_data_received(GtkWidget* widget, GdkDragContext* context, gi
 int main() {
     gtk_init(nullptr, nullptr);
 
-    char cwd[PATH_MAX];
-    if (getcwd(cwd, sizeof(cwd)) == nullptr) return 1;
-    std::string url = std::string("file://") + cwd + "/ui/index.html";
+    /* MODIFIED: Thay getcwd() bằng cách lấy đường dẫn tuyệt đối từ executable để chạy được mọi nơi */
+    char exe_path[PATH_MAX];
+    ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+    if (len == -1) return 1;
+    exe_path[len] = '\0';
+
+    gchar* dir_path = g_path_get_dirname(exe_path);
+    std::string app_dir = dir_path;
+    g_free(dir_path);
+
+    // Nếu chạy từ thư mục build (như cấu trúc Makefile thông thường), ui nằm ở thư mục cha.
+    // Nếu cài đặt chạy thực tế, ui nằm cùng cấp với file chạy. Chúng ta kiểm tra cả hai.
+    std::string url;
+    if (g_file_test((app_dir + "/ui/index.html").c_str(), G_FILE_TEST_EXISTS)) {
+        url = "file://" + app_dir + "/ui/index.html";
+    } else {
+        url = "file://" + app_dir + "/../ui/index.html";
+    }
+    /* END MODIFIED */
 
     GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Image Converter");

@@ -31,9 +31,9 @@ sudo pacman \-S base-devel gtk3 webkit2gtk-4.1 imagemagick libnotify
 
 If you want a hassle-free setup without dealing with compiler commands, run our setup assistant. This script will automatically compile the app and add a handy shortcut to your application menu:
 
-git clone https://github.com/Alepherite/magicium.git  
-cd magicium/  
-chmod \+x install.sh  
+git clone \[https://github.com/Alepherite/magicium.git\](https://github.com/Alepherite/magicium.git)    
+cd magicium/    
+chmod \+x install.sh    
 ./install.sh
 
 *Once finished, you can find and launch **Magicium Converter** straight from your system's application launcher (like Rofi, Bemenu, or your desktop menu).*
@@ -42,9 +42,9 @@ chmod \+x install.sh
 
 Alternatively, you can compile, build, and run the binary manually using this single command block:
 
-git clone https://github.com/Alepherite/magicium.git  
-cd magicium/  
-make  
+git clone \[https://github.com/Alepherite/magicium.git\](https://github.com/Alepherite/magicium.git)    
+cd magicium/    
+make    
 build/magicium
 
 ## **⚙️ How It Works under the Hood**

@@ -9,16 +9,16 @@ else
 fi
 
 # Clone the repository
-git clone https://github.com/Alepherite/magicium.git magicium_temp
+git clone https://github.com/Alepherite/magicium.git 
 if [ $? -ne 0 ]; then
     echo "Failed to clone repository. Aborting update."
     exit 1
 fi
 
 # Move into the cloned repository and install
-cd magicium_temp
+cd magicium
 if [ $? -ne 0 ]; then
-    echo "Failed to change directory to magicium_temp. Aborting update."
+    echo "Failed to change directory to magicium. Aborting update."
     exit 1
 fi
 

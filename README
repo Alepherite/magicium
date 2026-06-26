@@ -20,6 +20,10 @@ Make sure you install the [Prerequisites] first.
   make
   build/magicium
 
+[Update]
+  - Option A (Global): Run 'magicium-update' from anywhere.
+  - Option B (Source): Run './update.sh' from inside the repository folder.
+
 [Uninstall]
   - Option A (Global): Run 'magicium-uninstall' from anywhere.
   - Option B (Source): Run './uninstall.sh' from inside the repository folder.
@@ -43,31 +47,42 @@ Install development libraries based on your Linux distribution:
 -------------------------------------------------------------------------------
 3. FEATURES
 -------------------------------------------------------------------------------
-* Hybrid Architecture: HTML5/JS/CSS frontend sitting directly on a C++ core.
-* Zero Base64 Overhead: Passes absolute file paths straight to 'magick' binary.
-* Asynchronous Processing: Offloads tasks via 'g_spawn_command_line_async'.
+* Hybrid Architecture: HTML5/JS/CSS frontend sitting directly on a compiled
+  C++ core.
+* Zero Base64 Overhead: Passes absolute file paths straight to the native
+  'magick' binary.
+* Asynchronous Processing: Offloads conversions via
+  'g_spawn_command_line_async' to prevent UI freezing.
 * Desktop Drag & Drop: Drop files from Thunar, Dolphin, PCManFM-QT, etc.
-* Anti-Flashbang: 8 custom theme presets with a pre-inject loader.
-* Native Notifications: Alerts via 'notify-send' upon compilation completion.
+* Anti-Flashbang Theme Hook: Eight custom theme presets with a pre-inject
+  loader to eliminate startup white screen flashes.
+* Native Notifications: Alerts via 'notify-send' when conversions complete.
 
 -------------------------------------------------------------------------------
 4. UNDER THE HOOD
 -------------------------------------------------------------------------------
-* JS-to-C++ Bridge: Frontend extracts file paths, sending a minimal metadata 
-  payload to C++. Avoids heavy browser-side canvas encoding.
-* Intelligent Dispatcher: C++ backend resolves naming duplicates and spawns 
-  independent child processes:
+* JS-to-C++ Bridge: Frontend extracts absolute file paths and sends only a
+  lightweight metadata payload to the C++ controller, avoiding expensive
+  browser-side canvas encoding.
+
+* Intelligent Dispatcher: Automatically resolves output name conflicts and
+  spawns independent child processes, for example:
   $ magick "/path/to/input.png" "/path/to/input_converted.webp"
-* Resource Efficiency: Optimal multi-threading with ~0% idle memory footprint.
+
+* Resource Efficiency: Background processes utilize optimal CPU
+  multithreading while maintaining close to 0% idle memory usage.
 
 -------------------------------------------------------------------------------
 5. USER SETTINGS
 -------------------------------------------------------------------------------
-Configuration and active theme presets are persisted under:
+Configuration and active theme presets are automatically stored in:
+
   ~/.config/magicium/config.json
 
 -------------------------------------------------------------------------------
 6. LICENSE
 -------------------------------------------------------------------------------
-Open-source under the terms of the LICENSE agreement. Feel free to fork & hack!
+Open-source under the terms of the LICENSE agreement.
+
+Feel free to fork, hack, and expand its capabilities!
 ===============================================================================

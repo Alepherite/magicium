@@ -49,6 +49,32 @@ chmod +x uninstall.sh
 
 In addition to removing the installed application, this method can optionally delete the cloned GitHub repository itself after the uninstallation is complete.
 
+### Update
+
+If you installed Magicium using the automated installer, there are two ways to update it.
+
+**Option A: Global Updater (Coming Soon)**
+
+Run the built-in updater from anywhere in your terminal:
+
+```bash
+magicium-update
+```
+
+This automatically pulls the latest changes, recompiles the application, updates the installed files, and refreshes the desktop entry if necessary.
+
+**Option B: From the Source Directory**
+
+If you still have the cloned repository, you can also run:
+
+```bash
+cd magicium
+chmod +x update.sh
+./update.sh
+```
+
+This updates your local repository, rebuilds the application, and reinstalls the latest version while preserving your existing configuration.
+
 ---
 
 ## Prerequisites

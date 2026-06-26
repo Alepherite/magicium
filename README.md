@@ -24,6 +24,18 @@ make
 build/magicium
 ```
 
+### Uninstall 
+
+If you installed Magicium using the automated installer, you can completely remove it by running:
+
+```bash
+cd magicium
+chmod +x uninstall.sh
+./uninstall.sh
+```
+
+This removes the installed application, desktop entry, and related files created by the installer.
+
 ---
 
 ## Prerequisites

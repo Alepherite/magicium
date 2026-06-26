@@ -1,66 +1,61 @@
-# **🖼️ Magicium Converter**
+## **Quick Start**
 
-## **✨ Features**
+Magicium is natively tailored for Linux desktop environments. Make sure you install the [Prerequisites](#bookmark=id.bd0msbx1rw0t) first to ensure a smooth compilation.
 
-* **Hybrid Architecture:** The best of both worlds. A modern, fluid HTML5/JS/CSS user interface powered by WebKitGTK, sitting on top of a lightning-fast, compiled C++ backend.  
-* **Zero Base64 Overhead:** Unlike typical web-based converters that choke on large files due to browser-side canvas encoding, Magicium delegates all processing directly to the system's native magick binary via physical file paths.  
-* **Asynchronous Execution:** Converts images in an isolated, non-blocking background thread (g\_spawn\_command\_line\_async), ensuring zero UI freezing even when processing massive resolutions.  
-* **Full Drag & Drop Support:** Drop any image directly from your native Linux File Manager (such as Thunar, Dolphin, or PCManFM-QT) straight into the app window.  
-* **Flawless Theme Integration:** Ships with 8 beautiful, custom-tailored presets (*Light, Dark, Sunset, Nord, Cyberpunk, Forest, Sakura, and Matrix*). Features a specialized pre-inject theme hook to **completely eliminate "flashbangs"** (white screen flashes) during cold boot.  
-* **Desktop Notifications:** Instantly alerts you via native system notifications (notify-send) once your converted file is safely written to disk.
+### **Option A: Automated Installation (Recommended)**
 
-## **🛠️ Prerequisites & Dependencies**
+Run the automated assistant to compile the source code and generate a desktop entry shortcut in your system launcher:
 
-Magicium is tailor-made for Linux. Before building, install the required development libraries for your distribution:
-
-### **1\. Debian / Ubuntu / Linux Mint:**
-
-sudo apt install build-essential libgtk-3-dev libwebkit2gtk-4.1-dev imagemagick libnotify-bin
-
-### **2\. Fedora / RHEL:**
-
-sudo dnf install gcc-c++ make gtk3-devel webkit2gtk4.1-devel ImageMagick libnotify
-
-### **3\. Arch Linux / CachyOS / Manjaro:**
-
-sudo pacman \-S base-devel gtk3 webkit2gtk-4.1 imagemagick libnotify
-
-## **🚀 Installation & Running**
-
-### **Option A: One-Click Automated Setup (Recommended)**
-
-If you want a hassle-free setup without dealing with compiler commands, run our setup assistant. This script will automatically compile the app and add a handy shortcut to your application menu:
-
-git clone \[https://github.com/Alepherite/magicium.git\](https://github.com/Alepherite/magicium.git)    
-cd magicium/    
-chmod \+x install.sh    
+git clone https://github.com/Alepherite/magicium.git  
+cd magicium/  
+chmod \+x install.sh  
 ./install.sh
-
-*Once finished, you can find and launch **Magicium Converter** straight from your system's application launcher (like Rofi, Bemenu, or your desktop menu).*
 
 ### **Option B: Manual Compilation**
 
-Alternatively, you can compile, build, and run the binary manually using this single command block:
+If you prefer building and launching the binary manually from your terminal:
 
-git clone \[https://github.com/Alepherite/magicium.git\](https://github.com/Alepherite/magicium.git)    
-cd magicium/    
-make    
+git clone https://github.com/Alepherite/magicium.git  
+cd magicium/  
+make  
 build/magicium
 
-## **⚙️ How It Works under the Hood**
+## **Prerequisites**
 
-* **UI to Backend Bridge:** When clicking Convert & Save, the JavaScript UI avoids expensive data-URI calculations. Instead, it extracts the target format and the original physical absolute path of the image, then fires a lightweight payload to the C++ controller.  
-* **Command Dispatcher:** The C++ backend decodes the file path, computes a safe, non-conflicting output filename (e.g., appending suffixes like \_converted\_1.webp if a file with the same name already exists), and spawns an independent child process running:  
+Install the required development libraries depending on your Linux distribution:
+
+* **Debian / Ubuntu / Linux Mint**  
+  sudo apt install build-essential libgtk-3-dev libwebkit2gtk-4.1-dev imagemagick libnotify-bin
+
+* **Fedora / RHEL**  
+  sudo dnf install gcc-c++ make gtk3-devel webkit2gtk4.1-devel ImageMagick libnotify
+
+* **Arch Linux / CachyOS / Manjaro**  
+  sudo pacman \-S base-devel gtk3 webkit2gtk-4.1 imagemagick libnotify
+
+## **Features**
+
+* **Hybrid Architecture** — A modern, fluid HTML5/JS/CSS interface powered by WebKitGTK, sitting directly on top of a compiled C++ core.  
+* **Zero Base64 Overhead** — Bypasses slow browser-side canvas encoding by sending absolute physical file paths straight to the system's native magick binary.  
+* **Asynchronous Processing** — Offloads conversions to isolated, non-blocking background threads (g\_spawn\_command\_line\_async) to prevent UI freezing.  
+* **Desktop Drag & Drop** — Drag files directly from your Linux file manager (Thunar, Dolphin, PCManFM-QT, etc.) and drop them into the workspace.  
+* **Anti-Flashbang Theme Hook** — Integrates 8 custom-tailored presets (*Nord, Cyberpunk, Sakura, etc.*) with a pre-inject loader to eliminate startup white screen flashes.  
+* **Native Notifications** — Sends instant system alerts via notify-send as soon as your files are successfully compiled and written.
+
+## **How It Works under the Hood**
+
+* **The JS-to-C++ Bridge** — When clicking convert, the JavaScript frontend avoids expensive memory computations. Instead, it extracts the file's absolute path and sends a lightweight metadata payload to the C++ controller.  
+* **Intelligent Dispatcher** — The C++ backend automatically computes a non-conflicting output name (e.g., appending \_converted\_1.webp if a duplicate exists) and spawns an independent child process:  
   magick "/path/to/input.png" "/path/to/input\_converted.webp"
 
-* This ensures maximum CPU multithreading utilization with close to 0% idle RAM usage when the app runs in the background.
+* **Resource Efficiency** — Background processes execute with optimal CPU multithreading usage and close to 0% idle memory footprint when minimized.
 
-## **📝 User Settings & Persistence**
+## **User Settings**
 
-Your custom layout selections (such as selected theme and preferences) are automatically saved to your system's configuration standard directory:
+Your local interface configuration and active theme presets are automatically persistent and saved directly to standard configuration directories:
 
 \~/.config/magicium/config.json
 
-## **📄 License**
+## **License**
 
-This project is open-source and available under the terms of the [LICENSE](http://docs.google.com/LICENSE) agreement. Feel free to fork, hack, and expand its capabilities\!
+Open-source and distributed under the terms of the [LICENSE](http://docs.google.com/LICENSE) agreement. Feel free to fork, hack, and expand its capabilities\!

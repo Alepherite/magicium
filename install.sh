@@ -33,16 +33,16 @@ chmod +x "$LOCAL_BIN/magicium"
 # Copy UI directory
 cp -r ui "$LOCAL_SHARE/"
 
-# Định nghĩa thư mục lưu trữ icon chuẩn cho user
+# Define the standard icon directory for the user
 LOCAL_ICONS="$HOME/.local/share/icons/hicolor/128x128/apps"
 mkdir -p "$LOCAL_ICONS"
 
-# Giả sử bạn có file icon tên là 'icon.png' nằm trong thư mục assets/
+# Assume you have an icon file named 'icon.png' in the assets/ directory
 if [ -f "assets/icon.png" ]; then
     echo "Installing application icon..."
     cp assets/icon.png "$LOCAL_ICONS/magicium-converter.png"
-    
-    # Lệnh bắt buộc để hệ thống (Sway/Rofi) nạp lại danh sách icon mới ngay lập tức
+
+    # Command required to force the system (Sway/Rofi) to reload the new icon list immediately
     gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
 else
     echo "Warning: assets/icon.png not found. Skipping icon installation."
